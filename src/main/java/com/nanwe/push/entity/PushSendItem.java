@@ -60,4 +60,12 @@ public class PushSendItem {
      */
     @Column(name = "SEND_DT")
     private LocalDateTime sendDt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name = "APP_ID", referencedColumnName = "APP_ID", insertable = false, updatable = false),
+            @JoinColumn(name = "NOTICE_NO", referencedColumnName = "NOTICE_NO", insertable = false, updatable = false)
+    })
+    private PushSend pushSend;
+
 }

@@ -60,4 +60,12 @@ public class PushAppUserToken {
      */
     @Column(name = "USE_AT")
     private String useAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+            @JoinColumn(name = "APP_ID", referencedColumnName = "APP_ID", insertable = false, updatable = false),
+            @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false)
+    })
+    private PushAppUser appUser;
+
 }

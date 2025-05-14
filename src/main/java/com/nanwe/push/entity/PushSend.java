@@ -29,6 +29,11 @@ public class PushSend {
     @Column(name = "APP_ID")
     private String appId;
 
+    // 연관관계 매핑 추가 (LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "APP_ID", referencedColumnName = "APP_ID", insertable = false, updatable = false)
+    private PushApp app;
+
     /**
      * 푸시 제목
      */
