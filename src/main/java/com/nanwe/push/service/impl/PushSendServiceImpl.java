@@ -3,6 +3,7 @@ package com.nanwe.push.service.impl;
 import com.nanwe.push.dto.PushSendRequestDto;
 import com.nanwe.push.entity.*;
 import com.nanwe.push.repository.*;
+import com.nanwe.push.service.FcmService;
 import com.nanwe.push.service.PushSendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,9 @@ public class PushSendServiceImpl implements PushSendService {
     private final PushSendListRepository pushSendListRepository;
     private final PushWebSendListRepository pushWebSendListRepository;
     private final PushSendStackRepository pushSendStackRepository;
+    private final FcmService fcmService;
+    private final PushAppUserTokenRepository pushAppUserTokenRepository;
+
 
     /**
      * 푸시 발송 전체 처리
@@ -35,6 +39,9 @@ public class PushSendServiceImpl implements PushSendService {
         createChannelLists(request, pushSend, app);              // 4. 채널별 발송 리스트 생성
         updateSendCounts(request, pushSend, app);                // 5. 발송 건수 및 상태 업데이트
         saveSendLog(request, pushSend);                          // 6. 처리 로그 저장
+        // 실제 푸시 발송
+        sendFcmToTargets(request, pushSend);
+
     }
 
     /**
@@ -179,4 +186,39 @@ public class PushSendServiceImpl implements PushSendService {
         pushSendStackRepository.save(logEntry);
         log.info("발송 처리 로그 저장 완료");
     }
+    private void sendFcmToTargets(PushSendRequestDto request, PushSend pushSend) {
+        List<PushSendList> targetList = pushSendListRepository.findByAppIdAndNoticeNo(
+                request.getAppId(), pushSend.getNoticeNo());
+
+        for (PushSendList target : targetList) {
+            try {
+                // 1. 토큰 조회
+                Optional<PushAppUserToken> tokenOpt = pushAppUserTokenRepository
+                        .findTopByAppIdAndUserIdAndUseAtOrderByTokenIdDesc(target.getAppId(), target.getUserId(), "Y");
+
+                if (tokenOpt.isEmpty()) {
+                    target.setSuccessYn("N");
+                    target.setFailMsg("FCM 토큰 없음");
+                    continue;
+                }
+
+                String token = tokenOpt.get().getFcmToken();
+
+                // 2. FCM 발송
+                fcmService.sendTo(token, request.getNoticeTitle(), request.getNoticeBody());
+
+                // 3. 성공 처리
+                target.setSuccessYn("Y");
+                target.setSendDt(String.valueOf(LocalDateTime.now()));
+            } catch (Exception e) {
+                // 4. 실패 처리
+                target.setSuccessYn("N");
+                target.setFailMsg(e.getMessage());
+            }
+        }
+
+        pushSendListRepository.saveAll(targetList);
+        log.info("FCM 발송 대상 {}명 처리 완료", targetList.size());
+    }
+
 }
