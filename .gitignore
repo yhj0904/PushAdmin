@@ -35,3 +35,35 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Java build output
+/bin/
+/build/
+/out/
+/target/
+
+# Maven
+/logs/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+*.log
+*.class
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# 환경 설정 및 비밀 키
+*.env
+*.key
+*.pem
+*.crt
+*.jks
+
+# Firebase 키 파일
+src/main/resources/firebase/firebase-service-account.json
+
+# 기타
+*.bak
+*.swp
+*.tmp
