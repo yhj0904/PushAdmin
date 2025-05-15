@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nanwe.push.mapper.PushSendMapper">
+
+    <!-- ▒▒▒ 발송 이력 목록 조회 ▒▒▒ -->
+    <select id="searchPushSendList"
+            resultType="com.nanwe.push.dto.PushSendSummaryDto">
+
+        SELECT
+        NOTICE_NO          AS noticeNo
+        , APP_ID             AS appId
+        , NOTICE_TITLE       AS noticeTitle
+        , NOTICE_DT          AS noticeDt
+        , USER_ID            AS userId
+        , USER_NM            AS userNm
+        , PUSH_USE           AS pushUse
+        , WEB_USE            AS webUse
+        , SMS_USE            AS smsUse
+        , TOTAL_CNT          AS totalCnt
+        , PUSH_SUCCESS_CNT   AS pushSuccessCnt
+        , PUSH_FAIL_CNT      AS pushFailCnt
+        , PUSH_STATE         AS pushState
+        FROM T_PUSH_SEND_M
+        <where>
+            <!-- 필수: 앱 ID -->
+            APP_ID = #{cond.appId}
+
+            <!-- 제목·등록자 키워드 검색 -->
+            <if test="cond.keyword != null and cond.keyword != ''">
+                AND (NOTICE_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                OR USER_NM    LIKE CONCAT('%', #{cond.keyword}, '%'))
+            </if>
+
+            <!-- 상태 필터 -->
+            <if test="cond.pushState != null and cond.pushState != ''">
+                AND PUSH_STATE = #{cond.pushState}
+            </if>
+
+            <!-- 날짜 범위 -->
+            <if test="cond.fromDt != null">
+                AND NOTICE_DT &gt;= #{cond.fromDt}
+            </if>
+            <if test="cond.toDt != null">
+                AND NOTICE_DT &lt;= #{cond.toDt}
+            </if>
+        </where>
+
+        ORDER BY NOTICE_NO DESC   <!-- 기본 정렬 -->
+        LIMIT  #{limit}
+        OFFSET #{offset}
+    </select>
+
+    <!-- ▒▒▒ 전체 건수 조회 (페이지네이션용) ▒▒▒ -->
+    <select id="countPushSendList" resultType="int">
+
+        SELECT COUNT(*)
+        FROM T_PUSH_SEND_M
+        <where>
+            APP_ID = #{cond.appId}
+
+            <if test="cond.keyword != null and cond.keyword != ''">
+                AND (NOTICE_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                OR USER_NM    LIKE CONCAT('%', #{cond.keyword}, '%'))
+            </if>
+
+            <if test="cond.pushState != null and cond.pushState != ''">
+                AND PUSH_STATE = #{cond.pushState}
+            </if>
+
+            <if test="cond.fromDt != null">
+                AND NOTICE_DT &gt;= #{cond.fromDt}
+            </if>
+            <if test="cond.toDt != null">
+                AND NOTICE_DT &lt;= #{cond.toDt}
+            </if>
+        </where>
+    </select>
+
+</mapper>

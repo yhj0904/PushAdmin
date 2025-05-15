@@ -14,10 +14,10 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void init() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream("path/to/firebase-service-account.json");
+        var resource = getClass().getClassLoader().getResourceAsStream("firebase/firebase-service-account.json");
 
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setCredentials(GoogleCredentials.fromStream(resource))
                 .build();
 
         if (FirebaseApp.getApps().isEmpty()) {

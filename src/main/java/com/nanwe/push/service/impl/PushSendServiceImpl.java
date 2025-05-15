@@ -39,9 +39,7 @@ public class PushSendServiceImpl implements PushSendService {
         createChannelLists(request, pushSend, app);              // 4. 채널별 발송 리스트 생성
         updateSendCounts(request, pushSend, app);                // 5. 발송 건수 및 상태 업데이트
         saveSendLog(request, pushSend);                          // 6. 처리 로그 저장
-        // 실제 푸시 발송
-        sendFcmToTargets(request, pushSend);
-
+        sendFcmToTargets(request, pushSend);                     // 7. FCM 실제 발송 및 통계 반영
     }
 
     /**
@@ -192,7 +190,6 @@ public class PushSendServiceImpl implements PushSendService {
 
         for (PushSendList target : targetList) {
             try {
-                // 1. 토큰 조회
                 Optional<PushAppUserToken> tokenOpt = pushAppUserTokenRepository
                         .findTopByAppIdAndUserIdAndUseAtOrderByTokenIdDesc(target.getAppId(), target.getUserId(), "Y");
 
@@ -204,14 +201,11 @@ public class PushSendServiceImpl implements PushSendService {
 
                 String token = tokenOpt.get().getFcmToken();
 
-                // 2. FCM 발송
                 fcmService.sendTo(token, request.getNoticeTitle(), request.getNoticeBody());
 
-                // 3. 성공 처리
                 target.setSuccessYn("Y");
                 target.setSendDt(String.valueOf(LocalDateTime.now()));
             } catch (Exception e) {
-                // 4. 실패 처리
                 target.setSuccessYn("N");
                 target.setFailMsg(e.getMessage());
             }
@@ -219,6 +213,15 @@ public class PushSendServiceImpl implements PushSendService {
 
         pushSendListRepository.saveAll(targetList);
         log.info("FCM 발송 대상 {}명 처리 완료", targetList.size());
-    }
 
+        // ✅ Step 8: 성공/실패 통계 반영
+        int successCnt = (int) targetList.stream().filter(t -> "Y".equalsIgnoreCase(t.getSuccessYn())).count();
+        int failCnt = (int) targetList.stream().filter(t -> "N".equalsIgnoreCase(t.getSuccessYn())).count();
+
+        pushSend.setPushSuccessCnt(successCnt);
+        pushSend.setPushFailCnt(failCnt);
+        pushSendRepository.save(pushSend);
+
+        log.info("푸시 성공 수: {}, 실패 수: {} → PushSend 통계 반영 완료", successCnt, failCnt);
+    }
 }
