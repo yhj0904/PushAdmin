@@ -47,7 +47,7 @@ public class PushSendHistoryController {
                 .build();
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<PushSendSummaryDto> result = pushSendQueryService.getPushHistory(String.valueOf(cond), pageable);
+        Page<PushSendSummaryDto> result = pushSendQueryService.getPushHistory(cond, pageable);
         return ResponseEntity.ok(result);
     }
 

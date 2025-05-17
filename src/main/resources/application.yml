@@ -3,18 +3,19 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://192.168.10.206:3306/nanwe_pushDb?useSSL=false&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://192.168.10.206:3306/PUSHDB?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
     username: nauri
     password: skdnfl00@
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update  # 또는 create, validate
+      ddl-auto: create  # 또는 create, validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
   mvc:
     pathmatch:

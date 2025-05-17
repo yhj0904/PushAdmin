@@ -30,20 +30,19 @@ public class PushSendQueryServiceImpl implements PushSendQueryService {
     private final PushSendUserRepository pushSendUserRepository;
 
     @Override
-    public Page<PushSendSummaryDto> getPushHistory(String appId, Pageable pageable) {
-        // Pageable을 MyBatis offset/limit으로 변환
+    public Page<PushSendSummaryDto> getPushHistory(
+            PushSendSearchCondition cond, Pageable pageable) {
+
         int offset = (int) pageable.getOffset();
-        int limit = pageable.getPageSize();
+        int limit  = pageable.getPageSize();
 
-        PushSendSearchCondition cond = PushSendSearchCondition.builder()
-                .appId(appId)
-                .build();
-
-        List<PushSendSummaryDto> content = pushSendMapper.searchPushSendList(cond, offset, limit);
+        List<PushSendSummaryDto> content =
+                pushSendMapper.searchPushSendList(cond, offset, limit);
         int total = pushSendMapper.countPushSendList(cond);
 
         return new PageImpl<>(content, pageable, total);
     }
+
 
     @Override
     public PushSendDetailDto getPushDetail(String appId, Long noticeNo) {

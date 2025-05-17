@@ -22,19 +22,24 @@ public class JoinService {
 
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
+        String role = joinDTO.getRole();
+
+        if (username == null || password == null || role == null) {
+            throw new IllegalArgumentException("필수 값이 누락되었습니다.");
+        }
 
         Boolean isExist = userRepository.existsByUsername(username);
 
         if (isExist) {
 
-            return;
+            throw new IllegalStateException("이미 존재하는 사용자입니다.");
         }
 
         UserEntity data = new UserEntity();
 
         data.setUsername(username);
         data.setPassword(bCryptPasswordEncoder.encode(password));
-        data.setRole("ROLE_ADMIN");
+        data.setRole("ROLE_" + joinDTO.getRole()); // 예: "USER" → "ROLE_USER"
 
         userRepository.save(data);
     }

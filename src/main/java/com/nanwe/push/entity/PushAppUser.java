@@ -3,6 +3,8 @@ package com.nanwe.push.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 /**
  * 앱 사용자 푸시 수신 설정 테이블
  * 각 사용자별 전체 수신 동의, 개별 수신 동의 여부 등을 저장
@@ -25,6 +27,7 @@ public class PushAppUser {
     /**
      * 앱 ID
      */
+    @Id
     @Column(name = "APP_ID")
     private String appId;
 

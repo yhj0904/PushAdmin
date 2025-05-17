@@ -28,6 +28,7 @@ public class SwaggerConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
+                                        .in(SecurityScheme.In.HEADER)
                                         .description("AccessToken을 입력하세요")));
     }
 }

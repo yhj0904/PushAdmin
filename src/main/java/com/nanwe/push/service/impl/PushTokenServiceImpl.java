@@ -2,12 +2,14 @@ package com.nanwe.push.service.impl;
 
 import com.nanwe.push.dto.FcmTokenDeleteDto;
 import com.nanwe.push.dto.FcmTokenRegisterDto;
+import com.nanwe.push.entity.PushAppUser;
 import com.nanwe.push.entity.PushAppUserToken;
 import com.nanwe.push.repository.PushAppUserTokenRepository;
 import com.nanwe.push.service.PushTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -19,10 +21,12 @@ public class PushTokenServiceImpl implements PushTokenService {
 
     private final PushAppUserTokenRepository tokenRepository;
 
+    @Transactional
     @Override
     public void registerOrUpdate(FcmTokenRegisterDto dto) {
+
         PushAppUserToken token = tokenRepository
-                .findTopByAppIdAndUserIdAndUseAtOrderByTokenIdDesc(dto.getAppId(), dto.getUserId(), dto.getDeviceId())
+                .findTopByAppIdAndUserIdAndDeviceIdOrderByTokenIdDesc(dto.getAppId(), dto.getUserId(), dto.getDeviceId())
                 .orElseGet(() -> PushAppUserToken.builder()
                         .appId(dto.getAppId())
                         .userId(dto.getUserId())

@@ -61,11 +61,11 @@ public class PushAppUserToken {
     @Column(name = "USE_AT")
     private String useAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-            @JoinColumn(name = "APP_ID", referencedColumnName = "APP_ID", insertable = false, updatable = false),
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumns(value = {
+            @JoinColumn(name = "APP_ID",  referencedColumnName = "APP_ID",  insertable = false, updatable = false),
             @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false)
-    })
+    }, foreignKey = @ForeignKey(name = "fk_push_token_app_user"))
     private PushAppUser appUser;
 
 }
