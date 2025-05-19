@@ -214,7 +214,7 @@ public class PushSendServiceImpl implements PushSendService {
         pushSendListRepository.saveAll(targetList);
         log.info("FCM 발송 대상 {}명 처리 완료", targetList.size());
 
-        // ✅ Step 8: 성공/실패 통계 반영
+        // Step 8: 성공/실패 통계 반영
         int successCnt = (int) targetList.stream().filter(t -> "Y".equalsIgnoreCase(t.getSuccessYn())).count();
         int failCnt = (int) targetList.stream().filter(t -> "N".equalsIgnoreCase(t.getSuccessYn())).count();
 

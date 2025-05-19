@@ -5,7 +5,9 @@ import com.nanwe.push.dto.PushSendSearchCondition;
 import com.nanwe.push.dto.PushSendSummaryDto;
 import com.nanwe.push.dto.PushSendUserDto;
 import com.nanwe.push.entity.PushSend;
+import com.nanwe.push.entity.PushSendList;
 import com.nanwe.push.mapper.PushSendMapper;
+import com.nanwe.push.repository.PushSendListRepository;
 import com.nanwe.push.repository.PushSendRepository;
 import com.nanwe.push.repository.PushSendUserRepository;
 import com.nanwe.push.service.PushSendQueryService;
@@ -28,6 +30,8 @@ public class PushSendQueryServiceImpl implements PushSendQueryService {
     private final PushSendMapper pushSendMapper;
     private final PushSendRepository pushSendRepository;
     private final PushSendUserRepository pushSendUserRepository;
+    private final PushSendListRepository pushSendListRepository;
+
 
     @Override
     public Page<PushSendSummaryDto> getPushHistory(
@@ -54,13 +58,14 @@ public class PushSendQueryServiceImpl implements PushSendQueryService {
 
         PushSend send = sendOpt.get();
 
-        List<PushSendUserDto> userList = pushSendUserRepository.findByAppIdAndNoticeNo(appId, noticeNo).stream()
-                .map(user -> PushSendUserDto.builder()
-                        .appId(user.getAppId())
-                        .noticeNo(user.getNoticeNo())
-                        .userId(user.getUserId())
-                        .successYn(user.getSuccessYn())
-                        .failMsg(user.getFailMsg())
+        List<PushSendList> targetList = pushSendListRepository.findByAppIdAndNoticeNo(appId, noticeNo);
+        List<PushSendUserDto> userList = targetList.stream()
+                .map(entry -> PushSendUserDto.builder()
+                        .appId(entry.getAppId())
+                        .noticeNo(entry.getNoticeNo())
+                        .userId(entry.getUserId())
+                        .successYn(entry.getSuccessYn()) // 이제 진짜 성공 여부
+                        .failMsg(entry.getFailMsg())
                         .build())
                 .collect(Collectors.toList());
 

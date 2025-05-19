@@ -11,44 +11,53 @@
 
         SELECT
         NOTICE_NO          AS noticeNo
-        , APP_ID             AS appId
-        , NOTICE_TITLE       AS noticeTitle
-        , NOTICE_DT          AS noticeDt
-        , USER_ID            AS userId
-        , USER_NM            AS userNm
-        , PUSH_USE           AS pushUse
-        , WEB_USE            AS webUse
-        , SMS_USE            AS smsUse
-        , TOTAL_CNT          AS totalCnt
-        , PUSH_SUCCESS_CNT   AS pushSuccessCnt
-        , PUSH_FAIL_CNT      AS pushFailCnt
-        , PUSH_STATE         AS pushState
-        FROM T_PUSH_SEND_M
+        , M.APP_ID             AS appId
+        , M.NOTICE_TITLE       AS noticeTitle
+        , M.NOTICE_DT          AS noticeDt
+        , M.USER_ID            AS userId
+        , M.USER_NM            AS userNm
+        , M.PUSH_USE           AS pushUse
+        , M.WEB_USE            AS webUse
+        , M.SMS_USE            AS smsUse
+        /*--- ★ 성공/실패/전체 건수 실시간 집계 ---*/
+        , (SELECT COUNT(*) FROM T_PUSH_SEND_LIST L
+        WHERE L.APP_ID = M.APP_ID
+        AND L.NOTICE_NO = M.NOTICE_NO
+        AND L.SUCCESS_YN = 'Y')                 AS pushSuccessCnt
+        , (SELECT COUNT(*) FROM T_PUSH_SEND_LIST L
+        WHERE L.APP_ID = M.APP_ID
+        AND L.NOTICE_NO = M.NOTICE_NO
+        AND L.SUCCESS_YN = 'N')                 AS pushFailCnt
+        , (SELECT COUNT(*) FROM T_PUSH_SEND_LIST L
+        WHERE L.APP_ID = M.APP_ID
+        AND L.NOTICE_NO = M.NOTICE_NO)          AS totalCnt
+        , M.PUSH_STATE         AS pushState
+        FROM T_PUSH_SEND_M M
         <where>
             <!-- 필수: 앱 ID -->
-            APP_ID = #{cond.appId}
+            M.APP_ID = #{cond.appId}
 
             <!-- 제목·등록자 키워드 검색 -->
             <if test="cond.keyword != null and cond.keyword != ''">
-                AND (NOTICE_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
-                OR USER_NM    LIKE CONCAT('%', #{cond.keyword}, '%'))
+                AND (M.NOTICE_TITLE LIKE CONCAT('%', #{cond.keyword}, '%')
+                OR M.USER_NM    LIKE CONCAT('%', #{cond.keyword}, '%'))
             </if>
 
             <!-- 상태 필터 -->
             <if test="cond.pushState != null and cond.pushState != ''">
-                AND PUSH_STATE = #{cond.pushState}
+                AND M.PUSH_STATE = #{cond.pushState}
             </if>
 
             <!-- 날짜 범위 -->
             <if test="cond.fromDt != null">
-                AND NOTICE_DT &gt;= #{cond.fromDt}
+                AND M.NOTICE_DT &gt;= #{cond.fromDt}
             </if>
             <if test="cond.toDt != null">
-                AND NOTICE_DT &lt;= #{cond.toDt}
+                AND M.NOTICE_DT &lt;= #{cond.toDt}
             </if>
         </where>
 
-        ORDER BY NOTICE_NO DESC   <!-- 기본 정렬 -->
+        ORDER BY M.NOTICE_NO DESC   <!-- 기본 정렬 -->
         LIMIT  #{limit}
         OFFSET #{offset}
     </select>
