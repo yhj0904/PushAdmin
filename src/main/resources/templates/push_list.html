@@ -1,0 +1,68 @@
+<!-- push_list.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>보낸 PUSH 알림 목록</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- 뒤로가기 + 제목 네비게이션 -->
+  <div class="navbar">
+    <span class="nav-back">
+      <a href="users.html">←</a>
+    </span>
+    <h2>보낸 PUSH 알림 목록</h2>
+  </div>
+
+  <div class="container">
+    <div class="page-body">
+      <!-- 테이블: 보낸 PUSH 알림 이력 -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>제목</th>
+              <th>발송 시간</th>
+              <th>발송 상태</th>
+              <th>성공/실패 (건수)</th>
+              <th>보기</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 예시 데이터 -->
+            <tr>
+              <td>긴급 점검 안내</td>
+              <td>2025-05-26 02:30</td>
+              <td>예약됨</td>
+              <td>1 / 0</td>
+              <td><a href="push_detail.html?id=1001">상세</a></td>
+            </tr>
+            <tr>
+              <td>정기 점검 안내</td>
+              <td>2025-05-22 05:52</td>
+              <td>발송 완료</td>
+              <td>10 / 0</td>
+              <td><a href="push_detail.html?id=1002">상세</a></td>
+            </tr>
+            <tr>
+              <td>신규 기능 알림</td>
+              <td>2025-05-20 14:15</td>
+              <td>발송 완료</td>
+              <td>15 / 2</td>
+              <td><a href="push_detail.html?id=1003">상세</a></td>
+            </tr>
+            <!-- ... 실제 데이터로 대체 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 하단 버튼: PUSH 전송 화면으로 이동 -->
+      <button class="btn" onclick="location.href='push_create.html'">
+        PUSH 전송하기
+      </button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!-- push_detail.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>PUSH 상세</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- 뒤로가기 + 제목 네비게이션 -->
+  <div class="navbar">
+    <span class="nav-back">
+      <a href="push_list.html">←</a>
+    </span>
+    <h2>PUSH 상세</h2>
+  </div>
+
+  <div class="container">
+    <div class="page-body">
+      <!-- 상세 정보 영역 -->
+      <div>
+        <p><strong>제목:</strong> 긴급 점검 안내</p>
+        <p><strong>내용:</strong> 내일 오전 3시에 시스템 점검이 예정되어 있습니다.</p>
+        <p><strong>발송 일시:</strong> 2025-05-26 02:30</p>
+        <p><strong>발송 상태:</strong> RESERVED</p>
+        <p><strong>성공/실패:</strong> 1 / 0</p>
+      </div>
+
+      <hr style="margin: 24px 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+      <!-- 발송 대상자 목록(예시) -->
+      <div>
+        <h3>발송 대상자</h3>
+        <ul>
+          <li>nauri (✅ 성공)</li>
+          <li>hong (❌ 실패)</li>
+          <li>kim (✅ 성공)</li>
+          <!-- 실제 대상 정보로 대체 -->
+        </ul>
+      </div>
+
+      <!-- 하단 버튼들 -->
+      <div style="margin-top: 24px;">
+        <!-- 수정 버튼(예약 중일 때만 활성화 가능하도록) -->
+        <button class="btn" onclick="location.href='push_create.html?id=1001'">
+          PUSH 수정
+        </button>
+        <!-- 삭제 버튼 -->
+        <button class="btn" style="background-color: #d32f2f; margin-left: 12px;" onclick="alert('삭제 기능을 구현하세요.')">
+          PUSH 삭제
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
