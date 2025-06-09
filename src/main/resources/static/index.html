@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>PUSH Server Login</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page-body">
+      <h2>로그인</h2>
+      <!-- 로그인 영역 -->
+      <form id="loginForm" class="form-center">
+        <label>ID: <input type="text" id="login-username"></label>
+        <label>PW: <input type="password" id="login-password"></label>
+        <button type="submit">로그인</button>
+      </form>
+      <div id="login-result"></div>
+      <button id="open-signup" class="btn" style="margin-top: 16px;">회원가입</button>
+    </div>
+  </div>
+
+  <!-- 회원가입 모달 -->
+  <div id="signup-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-modal">&times;</span>
+      <h3>회원가입</h3>
+      <form id="signup-form">
+        <label>ID: <input type="text" id="signup-username"></label>
+        <label>PW: <input type="password" id="signup-password"></label>
+        <label>ROLE:
+          <select id="signup-role">
+            <option value="USER">USER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </label>
+        <button type="submit">가입하기</button>
+      </form>
+      <div id="signup-result"></div>
+    </div>
+  </div>
+
+  <script src="js/scripts.js"></script>
+</body>
+</html>
