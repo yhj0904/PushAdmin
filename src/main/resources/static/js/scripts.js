@@ -1,6 +1,16 @@
 // js/scripts.js
 
-//// 페이지 로드 시 실행되도록
+// 인증 헤더 추가 함수
+function authFetch(url, options = {}) {
+  const token = localStorage.getItem('accessToken');
+  const headers = {
+    ...(options.headers || {}),
+    'Authorization': 'Bearer ' + token,
+  };
+  return fetch(url, { ...options, headers });
+}
+
+// 페이지 로드 시 실행되도록
 document.addEventListener('DOMContentLoaded', function() {
 
   // 예: PUSH 생성 폼 검증
@@ -48,13 +58,13 @@ document.addEventListener('DOMContentLoaded', function() {
        if (res.ok) {
            const access = res.headers.get("access");
            const refresh = getCookie("refresh");
+           localStorage.setItem("accessToken", access);
           // fetchCurrentUser(access);
            document.getElementById('login-result').innerHTML = `
              <div>Access Token: <code>${access}</code></div>
              <div>Refresh Token: <code>${refresh}</code></div>
              <button onclick="goSwagger('${access}')">Swagger UI로 이동</button>
            `;
-
            window.location.href = '/push_list.html';
        } else {
            alert('로그인 실패');

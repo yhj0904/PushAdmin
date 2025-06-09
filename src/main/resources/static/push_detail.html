@@ -54,4 +54,109 @@
     </div>
   </div>
 </body>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('accessToken');
+    const params = new URLSearchParams(location.search);
+    const noticeNo = params.get('id');
+    const appId = params.get('appId');
+
+    if (!token || !noticeNo || !appId) {
+      alert('잘못된 접근입니다.');
+      location.href = '/index.html';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/push/history/${appId}/${noticeNo}`, {
+        headers: {
+          Authorization: 'Bearer ' + token
+        }
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          alert('세션이 만료되었습니다. 다시 로그인하세요.');
+          location.href = '/index.html';
+        } else {
+          throw new Error('상세 정보 조회 실패');
+        }
+        return;
+      }
+
+      const detail = await res.json();
+
+      // 상세 정보 삽입
+      const body = document.querySelector('.page-body');
+      body.innerHTML = `
+        <div>
+          <p><strong>제목:</strong> ${detail.noticeTitle}</p>
+          <p><strong>내용:</strong> ${detail.noticeBody}</p>
+          <p><strong>발송 일시:</strong> ${formatDate(detail.noticeDt)}</p>
+          <p><strong>발송 상태:</strong> ${detail.pushState}</p>
+          <p><strong>성공/실패:</strong> ${detail.pushSuccessCnt} / ${detail.pushFailCnt}</p>
+        </div>
+
+        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+        <div>
+          <h3>발송 대상자</h3>
+          <ul>
+            ${detail.sendUserList.map(user => `
+              <li>
+                ${user.userId} (${user.successYn === 'Y' ? '✅ 성공' : `❌ 실패 (${user.failMsg || '이유 없음'})`})
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+
+        <div style="margin-top: 24px;">
+          ${detail.pushState === 'RESERVED' ? `
+            <button class="btn" onclick="location.href='push_create.html?id=${detail.noticeNo}'">
+              PUSH 수정
+            </button>` : ''
+          }
+          <button class="btn" style="background-color: #d32f2f; margin-left: 12px;" onclick="handleDelete(${detail.noticeNo}, '${appId}')">
+            PUSH 삭제
+          </button>
+        </div>
+      `;
+    } catch (err) {
+      console.error(err);
+      alert('PUSH 상세 정보를 불러오는 데 실패했습니다.');
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso.replace(' ', 'T'));
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function pad(n) {
+      return n.toString().padStart(2, '0');
+    }
+  });
+
+  function handleDelete(noticeNo, appId) {
+    const token = localStorage.getItem('accessToken');
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    fetch(`/api/push/history/${appId}/${noticeNo}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    }).then(res => {
+      if (res.ok) {
+        alert('삭제되었습니다.');
+        location.href = 'push_list.html';
+      } else {
+        alert('삭제에 실패했습니다.');
+      }
+    }).catch(err => {
+      console.error(err);
+      alert('삭제 요청 중 오류가 발생했습니다.');
+    });
+  }
+</script>
+
 </html>

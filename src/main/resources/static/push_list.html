@@ -17,52 +17,89 @@
   </div>
 
   <div class="container">
-    <div class="page-body">
-      <!-- 테이블: 보낸 PUSH 알림 이력 -->
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>제목</th>
-              <th>발송 시간</th>
-              <th>발송 상태</th>
-              <th>성공/실패 (건수)</th>
-              <th>보기</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- 예시 데이터 -->
-            <tr>
-              <td>긴급 점검 안내</td>
-              <td>2025-05-26 02:30</td>
-              <td>예약됨</td>
-              <td>1 / 0</td>
-              <td><a href="push_detail.html?id=1001">상세</a></td>
-            </tr>
-            <tr>
-              <td>정기 점검 안내</td>
-              <td>2025-05-22 05:52</td>
-              <td>발송 완료</td>
-              <td>10 / 0</td>
-              <td><a href="push_detail.html?id=1002">상세</a></td>
-            </tr>
-            <tr>
-              <td>신규 기능 알림</td>
-              <td>2025-05-20 14:15</td>
-              <td>발송 완료</td>
-              <td>15 / 2</td>
-              <td><a href="push_detail.html?id=1003">상세</a></td>
-            </tr>
-            <!-- ... 실제 데이터로 대체 -->
-          </tbody>
-        </table>
-      </div>
+    <h2>푸시 발송 목록</h2>
+    <div id="loading">로딩 중...</div>
+    <table id="pushTable" style="display: none; width: 100%;">
+      <thead>
+      <tr>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>발송일</th>
+        <th>성공/실패</th>
+        <th>상세</th>
+      </tr>
+      </thead>
+      <tbody id="pushTableBody"></tbody>
+    </table>
+    <div id="emptyMsg" style="display: none;">발송된 푸시가 없습니다.</div>
 
-      <!-- 하단 버튼: PUSH 전송 화면으로 이동 -->
-      <button class="btn" onclick="location.href='push_create.html'">
-        PUSH 전송하기
-      </button>
-    </div>
+    <!-- 하단 버튼: PUSH 전송 화면으로 이동 -->
+    <button class="btn" onclick="location.href='push_create.html'">
+      PUSH 전송하기
+    </button>
   </div>
 </body>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('accessToken');
+    const table = document.getElementById('pushTable');
+    const tbody = document.getElementById('pushTableBody');
+    const loading = document.getElementById('loading');
+    const emptyMsg = document.getElementById('emptyMsg');
+
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      location.href = '/index.html';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/push/history/MOBILE?page=0&size=10', {
+        headers: {
+          Authorization: 'Bearer ' + token
+        }
+      });
+
+      if (!res.ok) throw new Error('목록 조회 실패');
+
+      const data = await res.json(); // Page 객체
+      const list = data.content || [];
+
+      if (list.length === 0) {
+        emptyMsg.style.display = 'block';
+      } else {
+        list.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.noticeTitle}</td>
+            <td>${item.userNm}</td>
+            <td>${formatDate(item.noticeDt)}</td>
+            <td>${item.pushSuccessCnt} / ${item.pushFailCnt}</td>
+            <td><a href="push_detail.html?id=${item.noticeNo}&appId=${item.appId}">상세</a></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        table.style.display = 'table';
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert('푸시 목록을 불러오는 데 실패했습니다.');
+    } finally {
+      loading.style.display = 'none';
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function pad(n) {
+      return n.toString().padStart(2, '0');
+    }
+  });
+
+</script>
+
 </html>
