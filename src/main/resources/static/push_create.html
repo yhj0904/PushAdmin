@@ -8,59 +8,127 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <!-- 뒤로가기 + 제목 네비게이션 -->
-  <div class="navbar">
+<div class="navbar">
     <span class="nav-back">
       <a href="push_list.html">←</a>
     </span>
-    <h2>PUSH 전송</h2>
+  <h2>PUSH 전송</h2>
+</div>
+
+<div class="container">
+  <div class="page-body">
+    <form id="pushCreateForm">
+      <label for="pushTitle">제목 *</label>
+      <input type="text" id="pushTitle" name="title" placeholder="제목을 입력하세요" />
+      <div id="titleError" class="error-msg"></div>
+
+      <label for="pushContent">내용 *</label>
+      <textarea id="pushContent" name="content" rows="4" placeholder="내용을 입력하세요"></textarea>
+      <div id="contentError" class="error-msg"></div>
+
+      <label for="imageUrl">이미지 URL</label>
+      <input type="text" id="imageUrl" name="imageUrl" placeholder="https://..." />
+
+      <label for="linkUrl">링크 URL</label>
+      <input type="text" id="linkUrl" name="linkUrl" placeholder="https://..." />
+
+      <label for="actionType">액션 타입</label>
+      <input type="text" id="actionType" name="actionType" placeholder="예: open_notice_detail" />
+
+      <label for="scheduledAt">예약 발송 시간</label>
+      <input type="datetime-local" id="scheduledAt" name="scheduledAt" />
+
+      <label for="targetIds">발송 대상자 ID (쉼표로 구분)</label>
+      <input type="text" id="targetIds" name="targetIds" placeholder="예: user1,user2,user3" />
+
+      <label for="creatorId">작성자 ID</label>
+      <input type="text" id="creatorId" name="creatorId" placeholder="admin01" />
+
+      <div style="margin-top: 24px;">
+        <button type="submit">전송하기</button>
+      </div>
+    </form>
   </div>
+</div>
 
-  <div class="container">
-    <div class="page-body">
-      <form id="pushCreateForm" action="push_list.html" method="post">
-        <!-- 제목 -->
-        <label for="pushTitle">제목 *</label>
-        <input type="text" id="pushTitle" name="title" placeholder="제목을 입력하세요" />
-        <div id="titleError" class="error-msg"></div>
+<script src="js/scripts.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('pushCreateForm');
 
-        <!-- 내용 -->
-        <label for="pushContent">내용 *</label>
-        <textarea id="pushContent" name="content" rows="4" placeholder="내용을 입력하세요"></textarea>
-        <div id="contentError" class="error-msg"></div>
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-        <!-- 이미지 URL -->
-        <label for="imageUrl">이미지 URL</label>
-        <input type="text" id="imageUrl" name="imageUrl" placeholder="https://..." />
+      // 필드 값 수집
+      const title = document.getElementById('pushTitle').value.trim();
+      const content = document.getElementById('pushContent').value.trim();
+      const imageUrl = document.getElementById('imageUrl').value.trim();
+      const linkUrl = document.getElementById('linkUrl').value.trim();
+      const actionType = document.getElementById('actionType').value.trim();
+      const scheduledAt = document.getElementById('scheduledAt').value;
+      const targetIds = document.getElementById('targetIds').value.trim();
+      const creatorId = document.getElementById('creatorId').value.trim();
 
-        <!-- 링크 URL -->
-        <label for="linkUrl">링크 URL</label>
-        <input type="text" id="linkUrl" name="linkUrl" placeholder="https://..." />
+      // 유효성 검사
+      document.getElementById('titleError').textContent = '';
+      document.getElementById('contentError').textContent = '';
 
-        <!-- 액션 타입 -->
-        <label for="actionType">액션 타입</label>
-        <input type="text" id="actionType" name="actionType" placeholder="예: open_notice_detail" />
+      let valid = true;
+      if (!title) {
+        document.getElementById('titleError').textContent = '제목을 입력해주세요.';
+        valid = false;
+      }
+      if (!content) {
+        document.getElementById('contentError').textContent = '내용을 입력해주세요.';
+        valid = false;
+      }
+      if (!valid) return;
 
-        <!-- 예약 발송 시간 -->
-        <label for="scheduledAt">예약 발송 시간</label>
-        <input type="datetime-local" id="scheduledAt" name="scheduledAt" />
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '/index.html';
+        return;
+      }
 
-        <!-- 발송 대상자 ID (쉼표로 구분) -->
-        <label for="targetIds">발송 대상자 ID (쉼표로 구분)</label>
-        <input type="text" id="targetIds" name="targetIds" placeholder="예: user1,user2,user3" />
+      const payload = {
+        appId: 'MOBILE',
+        noticeTitle: title,
+        noticeBody: content,
+        noticeImg: imageUrl,
+        noticeUrl: linkUrl,
+        noticeAction: actionType,
+        userId: creatorId || 'unknown',
+        userNm: '웹관리자',
+        userMobile: '000-0000-0000',
+        pushUse: 'Y',
+        smsUse: 'N',
+        webUse: 'Y',
+        reservationDt: scheduledAt ? new Date(scheduledAt).toISOString() : new Date().toISOString(),
+        userNmAt: 'N',
+        sendUserList: targetIds || 'nauri',
+      };
 
-        <!-- 작성자 ID -->
-        <label for="creatorId">작성자 ID</label>
-        <input type="text" id="creatorId" name="creatorId" placeholder="admin01" />
+      try {
+        const res = await fetch('/api/push/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(payload),
+        });
 
-        <!-- 전송/수정 버튼 -->
-        <div style="margin-top: 24px;">
-          <button type="submit">전송하기</button>
-        </div>
-      </form>
-    </div>
-  </div>
+        if (!res.ok) throw new Error('전송 실패');
 
-  <script src="js/scripts.js"></script>
+        alert('푸시가 성공적으로 전송되었습니다.');
+        location.href = 'push_list.html';
+      } catch (err) {
+        console.error(err);
+        alert('푸시 전송 중 오류가 발생했습니다.');
+      }
+    });
+  });
+</script>
 </body>
 </html>
