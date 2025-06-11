@@ -68,4 +68,4 @@ src/main/resources/firebase/firebase-service-account.json
 *.swp
 *.tmp
 
-src/main/resources/application.yml
+resources/application.yml
