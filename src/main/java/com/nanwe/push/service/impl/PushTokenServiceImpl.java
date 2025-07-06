@@ -2,7 +2,6 @@ package com.nanwe.push.service.impl;
 
 import com.nanwe.push.dto.FcmTokenDeleteDto;
 import com.nanwe.push.dto.FcmTokenRegisterDto;
-import com.nanwe.push.entity.PushAppUser;
 import com.nanwe.push.entity.PushAppUserToken;
 import com.nanwe.push.repository.PushAppUserTokenRepository;
 import com.nanwe.push.service.PushTokenService;
